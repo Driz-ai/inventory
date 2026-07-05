@@ -1,0 +1,191 @@
+# Inventory Management System API
+
+## Overview
+
+The Inventory Management System API is a RESTful web application built with **Python**, **Flask**, and the **OpenFoodFacts API**. It allows users to manage an inventory of products by creating, viewing, updating, and deleting products. The application also integrates with the OpenFoodFacts API to search for real food products and add them directly to the inventory.
+
+This project demonstrates the implementation of REST API principles, CRUD operations, external API integration, automated testing with Pytest, and a command-line interface (CLI).
+
+---
+
+## Features
+
+* RESTful API built with Flask
+* Create new inventory products
+* Retrieve individual products
+* Update product status
+* Delete products from inventory
+* Search products using the OpenFoodFacts API
+* Add products from OpenFoodFacts into the local inventory
+* Command-line interface for interacting with the API
+* Automated testing using Pytest
+
+---
+
+## Technologies Used
+
+* Python 3
+* Flask
+* Requests
+* Pytest
+* OpenFoodFacts API
+* Pipenv
+
+---
+
+## Project Structure
+
+```text
+inventory_management/
+│
+├── app.py              # Flask REST API
+├── ccc.py              # Command-line interface (CLI)
+├── test/
+│   ├── test_app.py     # API tests
+│   └── test_ccc.py     # CLI tests
+├── Pipfile
+├── Pipfile.lock
+└── README.md
+```
+
+---
+
+## Installation
+
+Clone the repository:
+
+```bash
+git clone <repository-url>
+```
+
+Move into the project directory:
+
+```bash
+cd inventory_management
+```
+
+Install dependencies:
+
+```bash
+pipenv install
+```
+
+Activate the virtual environment:
+
+```bash
+pipenv shell
+```
+
+---
+
+## Running the Application
+
+Start the Flask server:
+
+```bash
+python app.py
+```
+
+The API will run on:
+
+```
+http://127.0.0.1:5555
+```
+
+---
+
+## Running the CLI
+
+Open another terminal, activate the virtual environment, and run:
+
+```bash
+python ccc.py
+```
+
+The CLI allows you to:
+
+1. View products
+2. Add a product
+3. Update product status
+4. Delete a product
+5. Search OpenFoodFacts
+6. Add a product from OpenFoodFacts
+7. Exit
+
+---
+
+## API Endpoints
+
+| Method | Endpoint                              | Description                                   |
+| ------ | ------------------------------------- | --------------------------------------------- |
+| GET    | `/`                                   | Check if the API is running                   |
+| GET    | `/products`                           | Retrieve all products                         |
+| GET    | `/products/<id>`                      | Retrieve a product by ID                      |
+| POST   | `/products`                           | Create a new product                          |
+| PATCH  | `/products/<id>`                      | Update a product's status                     |
+| DELETE | `/products/<id>`                      | Delete a product                              |
+| GET    | `/products/API/search/<product_name>` | Search OpenFoodFacts                          |
+| POST   | `/products/API/add/<product_name>`    | Add an OpenFoodFacts product to the inventory |
+
+---
+
+## Example Request
+
+Create a product:
+
+```http
+POST /products
+```
+
+```json
+{
+  "product": {
+    "product_name": "Organic Almond Milk",
+    "brands": "Silk"
+  }
+}
+```
+
+---
+
+## Testing
+
+Run the test suite with:
+
+```bash
+pytest
+```
+
+Or view detailed results:
+
+```bash
+pytest -v
+```
+
+The project includes tests for:
+
+* Flask API routes
+* CRUD operations
+* Command-line interface functions
+
+---
+
+## External API
+
+This project integrates with the OpenFoodFacts API to:
+
+* Search for food products
+* Retrieve product information
+* Add products directly into the local inventory
+
+---
+
+## Author
+
+**Vincent**
+
+---
+
+## License
+
+This project was created for educational purposes.
