@@ -1,12 +1,28 @@
+      
 import requests
 
 API = "http://127.0.0.1:5555/products"
 
 
 
-def show_all():
+def view_inventory():
     r = requests.get(API)
+
+    print("Status:", r.status_code)
     print(r.json())
+
+
+
+def view_api_products():
+
+    r = requests.get(f"{API}/api/view")
+
+    print("Status:", r.status_code)
+
+    if r.status_code == 200:
+        print(r.json())
+    else:
+        print(r.text)
 
 
 
@@ -17,10 +33,13 @@ def add_product():
     payload = {
         "product": {
             "product_name": name,
-            "brands": brand}
+            "brands": brand
+        }
     }
 
     r = requests.post(API, json=payload)
+
+    print("Status:", r.status_code)
     print(r.json())
 
 
@@ -31,7 +50,9 @@ def update_status():
 
     r = requests.patch(
         f"{API}/{product_id}",
-        json={"status": int(status)}
+        json={
+            "status": int(status)
+        }
     )
 
     print(r.json())
@@ -41,59 +62,83 @@ def update_status():
 def delete_product():
     product_id = input("Product ID: ")
 
-    r = requests.delete(f"{API}/{product_id}")
+    r = requests.delete(
+        f"{API}/{product_id}"
+    )
+
     print(r.json())
 
 
 
-def search_product():
-    name = input("Enter product name: ")
+def search_food():
+    name = input("Search food: ")
 
-    r = requests.get(f"{API}/api/search/{name}")
+    r = requests.get(
+        f"{API}/api/search/{name}"
+    )
+
+    print("Status:", r.status_code)
     print(r.json())
 
 
 
-def add_apiproduct():
-    name = input("Enter product name: ")
+def add_api_product():
+    name = input("Import product name: ")
 
-    r = requests.post(f"{API}/api/add/{name}")
+    r = requests.post(
+        f"{API}/api/add/{name}"
+    )
+
+    print("Status:", r.status_code)
     print(r.json())
+
 
 
 if __name__ == "__main__":
 
-        while True:
+    while True:
 
-            print("    Inventory Menu    ")
-            print("\n1. View all products \n2. Add product\n3. Update product status\n4. Delete product\n5. Search Food\n6. Add apiproduct \n7. Exit")
+        print("""
+========= Inventory Menu =========
 
-            choice = input("Choose an option: ")
+1. View inventory (memory)
+2. View OpenFoodFacts API
+3. Add manual product
+4. Update product status
+5. Delete product
+6. Search OpenFoodFacts
+7. Add OpenFoodFacts product
+8. Exit
 
-            if choice == "1":
-                show_all()
+==================================
+""")
 
-            elif choice == "2":
-                add_product()
-
-            elif choice == "3":
-                update_status()
-
-            elif choice == "4":
-                delete_product()
-
-            elif choice == "5":
-                search_product()
-
-            elif choice == "6":
-                add_apiproduct()
-
-            elif choice == "7":
-                break
-
-            else:
-                print("Invalid option. Please try again.")
+        choice = input("Choose option: ")
 
 
-       
- 
+        if choice == "1":
+            view_inventory()
+
+        elif choice == "2":
+            view_api_products()
+
+        elif choice == "3":
+            add_product()
+
+        elif choice == "4":
+            update_status()
+
+        elif choice == "5":
+            delete_product()
+
+        elif choice == "6":
+            search_food()
+
+        elif choice == "7":
+            add_api_product()
+
+        elif choice == "8":
+            break
+
+        else:
+            print("Invalid option")

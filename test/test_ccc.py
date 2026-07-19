@@ -3,103 +3,204 @@ import requests
 import ccc
 
 
-# FAKE RESPONSE CLASS
+
 class FakeResponse:
+
     def __init__(self, data):
-        self._data = data
+
+        self.data = data
+        self.status_code = 200
+
 
     def json(self):
-        return self._data
+
+        return self.data
 
 
 
-# TEST SHOW ALL
-def test_show_all(monkeypatch):
+def test_view_inventory(monkeypatch):
 
     monkeypatch.setattr(
         requests,
         "get",
-        lambda url: FakeResponse([{"id": 1, "product": "Milk"}])
+        lambda url: FakeResponse(
+            [
+                {
+                    "id":1,
+                    "product":"Milk"
+                }
+            ]
+        )
     )
 
-    ccc.show_all()
+
+    ccc.view_inventory()
 
 
 
-# TEST ADD PRODUCT
+def test_view_api_products(monkeypatch):
+
+    monkeypatch.setattr(
+        requests,
+        "get",
+        lambda url: FakeResponse(
+            [
+                {
+                    "product_name":"Oreo"
+                }
+            ]
+        )
+    )
+
+
+    ccc.view_api_products()
+
+
+
+
 def test_add_product(monkeypatch):
 
-    inputs = iter(["Milk", "Nestle"])
-    monkeypatch.setattr(builtins, "input", lambda _: next(inputs))
+    inputs = iter(
+        [
+            "Chair",
+            "IKEA"
+        ]
+    )
+
+
+    monkeypatch.setattr(
+        builtins,
+        "input",
+        lambda x: next(inputs)
+    )
+
 
     monkeypatch.setattr(
         requests,
         "post",
-        lambda url, json: FakeResponse({"id": 1, "message": "created"})
+        lambda url,json: FakeResponse(
+            {
+                "id":3,
+                "product":{
+                    "product_name":"Chair"
+                }
+            }
+        )
     )
+
 
     ccc.add_product()
 
 
 
-# TEST UPDATE STATUS
+
 def test_update_status(monkeypatch):
 
-    inputs = iter(["1", "1"])
-    monkeypatch.setattr(builtins, "input", lambda _: next(inputs))
+
+    inputs = iter(
+        [
+            "1",
+            "0"
+        ]
+    )
+
+
+    monkeypatch.setattr(
+        builtins,
+        "input",
+        lambda x: next(inputs)
+    )
+
+
 
     monkeypatch.setattr(
         requests,
         "patch",
-        lambda url, json: FakeResponse({"id": 1, "status": 1})
+        lambda url,json: FakeResponse(
+            {
+                "status":0
+            }
+        )
     )
+
 
     ccc.update_status()
 
 
 
-# TEST DELETE PRODUCT
+
 def test_delete_product(monkeypatch):
 
-    inputs = iter(["1"])
-    monkeypatch.setattr(builtins, "input", lambda _: next(inputs))
+
+    monkeypatch.setattr(
+        builtins,
+        "input",
+        lambda x:"1"
+    )
+
 
     monkeypatch.setattr(
         requests,
         "delete",
-        lambda url: FakeResponse({"message": "deleted"})
+        lambda url: FakeResponse(
+            {
+                "message":"Product deleted"
+            }
+        )
     )
+
 
     ccc.delete_product()
 
 
 
-# TEST SEARCH PRODUCT
-def test_search_product(monkeypatch):
 
-    inputs = iter(["milk"])
-    monkeypatch.setattr(builtins, "input", lambda _: next(inputs))
+def test_search_food(monkeypatch):
+
+
+    monkeypatch.setattr(
+        builtins,
+        "input",
+        lambda x:"milk"
+    )
+
 
     monkeypatch.setattr(
         requests,
         "get",
-        lambda url: FakeResponse({"product_name": "Milk"})
+        lambda url: FakeResponse(
+            {
+                "product_name":"Milk"
+            }
+        )
     )
 
-    ccc.search_product()
+
+    ccc.search_food()
 
 
 
-# TEST ADD API PRODUCT
-def test_add_apiproduct(monkeypatch):
 
-    inputs = iter(["milk"])
-    monkeypatch.setattr(builtins, "input", lambda _: next(inputs))
+def test_add_api_product(monkeypatch):
+
+
+    monkeypatch.setattr(
+        builtins,
+        "input",
+        lambda x:"oreo"
+    )
+
 
     monkeypatch.setattr(
         requests,
         "post",
-        lambda url: FakeResponse({"id": 1, "source": "openfoodfacts"})
+        lambda url: FakeResponse(
+            {
+                "id":3,
+                "product_name":"Oreo"
+            }
+        )
     )
 
-    ccc.add_apiproduct()
+
+    ccc.add_api_product()
