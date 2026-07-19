@@ -4,6 +4,7 @@ import requests
 
 app = Flask(__name__)
 
+FOOD_SEARCH = "https://world.openfoodfacts.org/cgi/search.pl"
 
 products = [
     {
@@ -23,7 +24,7 @@ products = [
 ]
 
 
-FOOD_SEARCH = "https://world.openfoodfacts.org/cgi/search.pl"
+
 
 
 @app.route('/')
@@ -31,11 +32,60 @@ def home():
     return jsonify({"message": "API is running"})
 
 
-
-@app.route('/products', methods=["GET"])
-def get_all_products():
+@app.route("/products", methods=["GET"])
+def get_memory_product():
     return jsonify(products), 200
 
+
+
+@app.route('/products/api/view', methods=["GET"])
+def get_api_product():
+
+    try:
+        response = requests.get(
+            "https://world.openfoodfacts.org/cgi/search.pl",
+            params={
+                "search_terms": "oreo",
+                "search_simple": 1,
+                "action": "process",
+                "json": 1,
+                "page_size": 10
+            },
+            headers={
+                "User-Agent": "InventoryManagementApp/1.0"
+            },
+            timeout=10
+        )
+
+        if response.status_code != 200:
+            return jsonify({
+                "message": "OpenFoodFacts unavailable"
+            }), 503
+
+
+        data = response.json()
+
+        result = []
+
+        for item in data.get("products", []):
+
+            result.append({
+                "product_name": item.get("product_name", "Unknown"),
+                "brands": item.get("brands", "Unknown"),
+                "ingredients_text": item.get(
+                    "ingredients_text",
+                    "Unknown"
+                )
+            })
+
+
+        return jsonify(result), 200
+
+
+    except Exception as e:
+        return jsonify({
+            "error": str(e)
+        }), 500
 
 
 
@@ -49,18 +99,15 @@ def get_product(id):
 
     return jsonify(product), 200
 
-
-
-
 @app.route("/products/api/add/<product_name>", methods=["POST"])
 def add_apiproduct(product_name):
 
     product = fetch_product(product_name)
 
-    if not product:
+    if product is None:
         return jsonify({
-            "message": "Product not found in OpenFoodFacts"
-        }), 404
+            "message": "OpenFoodFacts unavailable or product not found"
+        }), 503
 
 
     new_id = max(p["id"] for p in products) + 1 if products else 1
@@ -77,8 +124,6 @@ def add_apiproduct(product_name):
 
 
     return jsonify(new_item), 201
-
-
 
 
 
@@ -152,18 +197,15 @@ def delete(id):
     return jsonify({"message": "Product deleted"}), 200
 
 
-
-@app.route("/products/API/search/<product_name>", methods=["GET"])
+@app.route("/products/api/search/<product_name>", methods=["GET"])
 def search_product(product_name):
 
     product = fetch_product(product_name)
 
-
-    if not product:
+    if product is None:
         return jsonify({
-            "message": "Product not found in OpenFoodFacts"
-        }), 404
-
+            "message": "OpenFoodFacts unavailable or product not found"
+        }), 503
 
     return jsonify(product), 200
 
@@ -171,31 +213,84 @@ def search_product(product_name):
 
 def fetch_product(product_name):
 
-    response = requests.get(
-        FOOD_SEARCH,
-        params={
-            "search_terms": product_name,
-            "json": 1,
-            "page_size": 1
-        }
-    )
+    try:
+        response = requests.get(
+            FOOD_SEARCH,
+            params={
+                "search_terms": product_name,
+                "search_simple": 1,
+                "action": "process",
+                "json": 1,
+                "page_size": 1
+            },
+            headers={
+                "User-Agent": "InventoryManagementApp/1.0"
+            },
+            timeout=20
+        )
 
-    if response.status_code != 200:
+        print("URL:", response.url)
+        print("STATUS:", response.status_code)
+
+        if response.status_code != 200:
+            print(response.text[:200])
+            return None
+
+        data = response.json()
+
+    except Exception as e:
+        print("ERROR:", e)
         return None
 
-    data = response.json()
 
-    result = data.get("products", [])
+    products_found = data.get("products", [])
 
-    if not result:
+
+    if not products_found:
         return None
 
-    product = result[0]
+
+    product = products_found[0]
+
 
     return {
-        "product_name": product.get("product_name", "Unknown"),
-        "brands": product.get("brands", "Unknown")
+        "product_name": product.get(
+            "product_name",
+            "Unknown"
+        ),
+
+        "brands": product.get(
+            "brands",
+            "Unknown"
+        ),
+
+        "ingredients_text": product.get(
+            "ingredients_text",
+            "Unknown"
+        ),
+
+        "categories": product.get(
+            "categories",
+            "Unknown"
+        ),
+
+        "countries": product.get(
+            "countries",
+            "Unknown"
+        ),
+
+        "nutriscore_grade": product.get(
+            "nutriscore_grade",
+            "Unknown"
+        ),
+
+        "image_url": product.get(
+            "image_url",
+            "Unknown"
+        )
     }
+
+
 
 
 if __name__ == "__main__":
